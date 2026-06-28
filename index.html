@@ -39,8 +39,8 @@
   header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 1.25rem; color: #fff; letter-spacing: 2px;
     text-shadow: 0 0 18px rgba(212,43,43,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .header-right { display: flex; align-items: center; gap: 0.6rem; }
-  #round-badge { background: var(--accent); color: #fff; font-weight: 700; font-size: 0.68rem; padding: 2px 9px; border-radius: 20px; letter-spacing: 1px;
-    box-shadow: 0 0 8px rgba(212,43,43,0.4); }
+  #round-badge { background: var(--accent); color: #fff; font-weight: 700; font-size: 0.65rem; padding: 3px 8px; border-radius: 20px; letter-spacing: 0.5px;
+    box-shadow: 0 0 8px rgba(212,43,43,0.4); white-space: nowrap; }
   #team-badge { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: 0.68rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; cursor: pointer; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* ── Nav ── */
@@ -196,16 +196,17 @@
   }
   .my-match-banner .banner-vs {
     display: grid; grid-template-columns: 1fr auto 1fr;
-    align-items: center; gap: 0.75rem; margin-bottom: 1rem;
+    align-items: center; gap: 0.4rem; margin-bottom: 0.85rem;
   }
   .my-match-banner .banner-team {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.9rem; font-weight: 400; line-height: 1.1; letter-spacing: 1px;
+    font-size: clamp(1.1rem, 4.5vw, 1.75rem); font-weight: 400; line-height: 1.15; letter-spacing: 1px;
+    word-break: break-word; hyphens: auto;
   }
   .my-match-banner .banner-team.right { text-align: right; }
   .my-match-banner .banner-vs-dot {
-    font-size: 0.8rem; font-weight: 700; color: var(--muted);
-    background: var(--surface2); padding: 5px 10px; border-radius: 5px;
+    font-size: 0.7rem; font-weight: 700; color: var(--muted);
+    background: var(--surface2); padding: 4px 7px; border-radius: 5px;
     letter-spacing: 1px; white-space: nowrap;
   }
   .field-chip {
