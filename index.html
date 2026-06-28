@@ -523,19 +523,21 @@ function loadConfig() {
 function saveConfig(cfg) { localStorage.setItem('knittel_fb_config', JSON.stringify(cfg)); }
 function loadAdminPw() { return localStorage.getItem('knittel_admin_pw') || 'admin'; }
 
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBukGl8KprWShSKyIuK6l4rfHM8kabKbwk",
+  authDomain: "ffpstoebel.firebaseapp.com",
+  databaseURL: "https://ffpstoebel-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "ffpstoebel",
+  appId: "1:899454609586:web:40465b0c61489f51cfc1ab"
+};
+
 async function connectFirebase(cfg) {
   const { initializeApp, getApps, getApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
   const { getDatabase, ref, onValue, set, update, remove, push }
     = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
   window._fb = { ref, onValue, set, update, remove, push };
 
-  const app = getApps().length ? getApp() : initializeApp({
-    apiKey: cfg.apiKey,
-    authDomain: `${cfg.projectId}.firebaseapp.com`,
-    databaseURL: cfg.dbUrl || `https://${cfg.projectId}-default-rtdb.europe-west1.firebasedatabase.app`,
-    projectId: cfg.projectId,
-    appId: cfg.appId
-  });
+  const app = getApps().length ? getApp() : initializeApp(FIREBASE_CONFIG);
   db = getDatabase(app);
   window._db = db;
   setStatus('Verbunden ✓');
@@ -985,20 +987,13 @@ window.showSection = function(id, btn) {
 // Init
 // ─────────────────────────────────────────────────────────────────────────────
 (async()=>{
-  const cfg=loadConfig();
-  if (cfg?.apiKey) {
-    setStatus('Verbinde...');
-    try {
-      await connectFirebase(cfg);
-      // connectFirebase sets up onValue – wait briefly for first data snapshot
-      await new Promise(res => setTimeout(res, 1200));
-    } catch(e) {
-      setStatus('Verbindung fehlgeschlagen');
-    }
-  } else {
-    setStatus('Firebase noch nicht konfiguriert – bitte im Admin-Bereich einrichten');
+  setStatus('Verbinde...');
+  try {
+    await connectFirebase();
+    await new Promise(res => setTimeout(res, 1200));
+  } catch(e) {
+    setStatus('Verbindung fehlgeschlagen: ' + e.message);
   }
-  // Show PIN overlay after data is loaded
   showPinOverlay();
 })();
 </script>
