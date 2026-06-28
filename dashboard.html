@@ -237,11 +237,11 @@
   }
 
   .standings-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 20px;
     flex: 1;
-    overflow: hidden;
+    overflow-y: auto;
   }
 
   .standing-row {
@@ -307,24 +307,31 @@
     display: flex;
     align-items: center;
     height: 100%;
-    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    gap: 100px;
+    gap: 120px;
+    /* width set by JS, animation added by JS */
+  }
+
+  @keyframes marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 
   .sponsor-slide {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 400px;
+    min-width: 420px;
     height: 120px;
     flex-shrink: 0;
+    padding: 0 20px;
+    border-right: 2px solid var(--border);
   }
 
   .sponsor-slide img {
     max-height: 110px;
-    max-width: 380px;
+    max-width: 400px;
     object-fit: contain;
-    filter: brightness(0) invert(1);  /* weiß auf dunklem Hintergrund */
+    filter: brightness(0) invert(1);
   }
 
   .sponsor-slide .sponsor-name {
@@ -333,6 +340,7 @@
     color: var(--text);
     letter-spacing: 3px;
     text-align: center;
+    white-space: nowrap;
   }
 
   /* ── Status dot ── */
@@ -436,9 +444,11 @@ const FIREBASE_CONFIG = {
 // Format: { name, logo } – logo = Dateiname (z.B. 'sponsor1.png') oder null für Text
 const SPONSORS = [
   { name: 'Raiffeisen Timelkam-Lenzing-Puchkirchen', logo: 'raika.svg' },
+  { name: 'Fliesen Gaborek',                          logo: 'gaborek.png' },
+  { name: 'Atos Schiemer',                            logo: 'logo-atos.gif' },
   // Weitere Sponsoren hier einfügen:
-  // { name: 'Fliesen Gaborek', logo: 'gaborek.png' },
-  // { name: 'Atos Schiemer', logo: 'logo-atos.gif' },  // nur Text
+  // { name: 'Sponsor Name', logo: 'dateiname.png' },
+  // { name: 'Nur Text',     logo: null },
 ];
 
 // ── State ──
@@ -577,25 +587,66 @@ function renderPairings() {
   grid.innerHTML = sorted.map(m => pairingCard(m, m.score1 === undefined && !m.bye)).join('');
 }
 
-// ── Render standings overlay ──
+// ── Zone calculation ──
+function calcZones(data) {
+  if (!data.length) return [];
+  const maxPts = data[0].pts;
+  const minPts = data[data.length-1].pts;
+  const spread = maxPts - minPts || 1;
+  const topThreshold    = maxPts - Math.max(2, Math.round(spread * 0.20));
+  const bottomThreshold = minPts + Math.max(2, Math.round(spread * 0.20));
+  return data.map(t => {
+    if (t.pts >= topThreshold)    return 'top';
+    if (t.pts <= bottomThreshold) return 'bottom';
+    return 'mid';
+  });
+}
+
+// ── Render standings overlay – zone-based, no rank ──
 function renderStandings() {
   const grid = document.getElementById('standings-grid');
   const data = calcStandings();
-  if (!data.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:2rem;padding:40px;grid-column:1/-1">Noch keine Ergebnisse</div>'; return; }
-  grid.innerHTML = data.map((t,i) => {
-    const rankClass = i===0?'r1':i===1?'r2':i===2?'r3':'';
-    const rowClass  = i===0?'top1':i===1?'top2':i===2?'top3':'';
-    const diff = t.diff>=0?`+${t.diff}`:`${t.diff}`;
-    const diffColor = t.diff>=0?'var(--green)':'var(--accent)';
-    return `
-      <div class="standing-row ${rowClass}">
-        <div class="standing-rank ${rankClass}">${i+1}</div>
-        <div class="standing-name">${t.name}</div>
-        <div class="standing-pts">${t.pts}</div>
-        <div class="standing-diff" style="color:${diffColor}">${diff}</div>
-        <div class="standing-record">${t.wins}S ${t.draws}U ${t.losses}N</div>
-      </div>`;
-  }).join('');
+  if (!data.length) {
+    grid.innerHTML = '<div style="color:var(--muted);font-size:2rem;padding:40px;grid-column:1/-1">Noch keine Ergebnisse</div>';
+    return;
+  }
+
+  const zones = calcZones(data);
+  const ZONE = {
+    top:    { icon:'🏆', label:'Kann gewinnen',   bg:'rgba(240,192,64,0.10)', border:'rgba(240,192,64,0.4)',  color:'#f0c040' },
+    mid:    { icon:'🟢', label:'Mittelfeld',       bg:'rgba(39,174,96,0.08)',  border:'rgba(39,174,96,0.3)',   color:'#27ae60' },
+    bottom: { icon:'🍍', label:'Goldene Ananas',  bg:'rgba(212,43,43,0.10)',  border:'rgba(212,43,43,0.4)',   color:'#d42b2b' },
+  };
+
+  // Group by zone
+  const groups = { top: [], mid: [], bottom: [] };
+  data.forEach((t,i) => groups[zones[i]].push(t));
+
+  let html = '';
+  for (const zone of ['top','mid','bottom']) {
+    const items = groups[zone];
+    if (!items.length) continue;
+    const z = ZONE[zone];
+
+    html += `<div style="grid-column:1/-1;padding:18px 28px 10px;
+      background:${z.bg};border:2px solid ${z.border};border-radius:14px;margin-bottom:6px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:${z.color};
+        letter-spacing:3px;margin-bottom:12px">${z.icon} ${z.label}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:14px">
+        ${items.map(t => `
+          <div style="background:rgba(0,0,0,0.3);border:1px solid ${z.border};
+            border-radius:10px;padding:14px 22px;display:flex;flex-direction:column;gap:4px;min-width:320px">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;
+              letter-spacing:1px;line-height:1">${t.name}</div>
+            <div style="display:flex;gap:16px;align-items:center">
+              <span style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:${z.color}">${t.pts} Pkt</span>
+              <span style="font-size:1.1rem;color:var(--muted)">${t.wins}S ${t.draws}U ${t.losses}N</span>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+  grid.innerHTML = html;
 }
 
 // ── Tabelle toggle (via URL param or keyboard) ──
@@ -611,34 +662,33 @@ if (new URLSearchParams(location.search).get('tabelle') === '1') toggleStandings
 
 function renderAll() { renderPairings(); renderStandings(); }
 
-// ── Sponsors ──
+// ── Sponsors – CSS marquee (nahtloser Loop) ──
 function initSponsors() {
   const slides = document.getElementById('sponsor-slides');
-  if (!SPONSORS.length) { slides.innerHTML = '<div class="sponsor-slide"><div class="sponsor-name">—</div></div>'; return; }
-
-  // Build enough copies to fill the track
-  const copies = Math.ceil(3840 / (400 + 100)) + 2;
-  const items = [];
-  for (let i = 0; i < copies; i++) {
-    const s = SPONSORS[i % SPONSORS.length];
-    if (s.logo) {
-      items.push(`<div class="sponsor-slide"><img src="${s.logo}" alt="${s.name}" onerror="this.parentNode.innerHTML='<div class=\\"sponsor-name\\">${s.name}</div>'"></div>`);
-    } else {
-      items.push(`<div class="sponsor-slide"><div class="sponsor-name">${s.name}</div></div>`);
-    }
+  if (!SPONSORS.length) {
+    slides.innerHTML = '<div class="sponsor-slide"><div class="sponsor-name">Stöbelturnier 2026</div></div>';
+    return;
   }
-  slides.innerHTML = items.join('');
-
-  // Rotate every 10 seconds
-  let offset = 0;
-  const slideWidth = 500; // px per sponsor slot
-  setInterval(() => {
-    offset += slideWidth;
-    if (offset >= SPONSORS.length * slideWidth) offset = 0;
-    slides.style.transform = `translateX(-${offset}px)`;
-  }, 10000);
+  const makeSlide = s => s.logo
+    ? `<div class="sponsor-slide"><img src="${s.logo}" alt="${s.name}" onerror="this.outerHTML='<div class=\"sponsor-slide\"><div class=\"sponsor-name\">${s.name}</div></div>'"></div>`
+    : `<div class="sponsor-slide"><div class="sponsor-name">${s.name}</div></div>`;
+  // Doppelt für nahtlosen Loop
+  const minCopies = Math.max(2, Math.ceil(12 / SPONSORS.length));
+  let html = '';
+  for (let i = 0; i < minCopies * 2; i++) SPONSORS.forEach(s => html += makeSlide(s));
+  slides.innerHTML = html;
+  // Breite messen + Animation starten
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const els = slides.querySelectorAll('.sponsor-slide');
+    let halfWidth = 0;
+    for (let i = 0; i < els.length / 2; i++) halfWidth += els[i].getBoundingClientRect().width + 120;
+    const dur = Math.max(15, SPONSORS.length * 6);
+    const st = document.createElement('style');
+    st.textContent = `@keyframes sponsor-scroll{0%{transform:translateX(0)}100%{transform:translateX(-${halfWidth}px)}}`;
+    document.head.appendChild(st);
+    slides.style.animation = `sponsor-scroll ${dur}s linear infinite`;
+  }));
 }
-
 init();
 initSponsors();
 
