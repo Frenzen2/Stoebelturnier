@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=3840, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stöbelturnier 2026 – Beamer Dashboard</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -24,13 +24,22 @@
     --scale: 1;
   }
 
-  html, body {
+  html {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  body {
     width: 3840px;
     height: 2160px;
     overflow: hidden;
     background: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
+    transform-origin: top left;
+    /* Scale set dynamically by JS */
   }
 
   /* ── Layout ── */
@@ -619,6 +628,23 @@ function initSponsors() {
 
 init();
 initSponsors();
+
+// ── Auto-scale to screen ──
+function scaleToScreen() {
+  const scaleX = window.innerWidth  / 3840;
+  const scaleY = window.innerHeight / 2160;
+  const scale  = Math.min(scaleX, scaleY);
+  document.body.style.transform = `scale(${scale})`;
+  // Center if letterboxed
+  const offsetX = (window.innerWidth  - 3840 * scale) / 2;
+  const offsetY = (window.innerHeight - 2160 * scale) / 2;
+  document.body.style.transformOrigin = '0 0';
+  document.body.style.marginLeft = offsetX + 'px';
+  document.body.style.marginTop  = offsetY + 'px';
+  document.documentElement.style.background = '#000';
+}
+scaleToScreen();
+window.addEventListener('resize', scaleToScreen);
 </script>
 </body>
 </html>
