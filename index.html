@@ -3,22 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Knittelturnier 2025</title>
+<title>Stöbelturnier 2025</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
 
   :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #222535;
-    --border: #2e3148;
-    --accent: #e8a020;
-    --accent2: #c47a10;
-    --text: #e8eaf0;
-    --muted: #7a7f9a;
-    --green: #2ecc71;
+    --bg: #0e0e0e;
+    --surface: #181818;
+    --surface2: #222222;
+    --border: #333333;
+    --accent: #d42b2b;
+    --accent2: #a81f1f;
+    --accent-glow: rgba(212,43,43,0.18);
+    --text: #f0f0f0;
+    --muted: #888888;
+    --green: #27ae60;
     --red: #e74c3c;
-    --blue: #3498db;
+    --blue: #2980b9;
+    --gold: #f0c040;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,15 +29,18 @@
 
   /* ── Header ── */
   header {
-    background: var(--surface);
+    background: linear-gradient(90deg, #1a0000 0%, #1e0a0a 60%, #1a0000 100%);
     border-bottom: 2px solid var(--accent);
     padding: 0 1.25rem;
     display: flex; align-items: center; justify-content: space-between;
-    height: 54px; position: sticky; top: 0; z-index: 100;
+    height: 58px; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(212,43,43,0.18);
   }
-  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; color: var(--accent); letter-spacing: 2px; }
+  header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 1.75rem; color: #fff; letter-spacing: 3px;
+    text-shadow: 0 0 18px rgba(212,43,43,0.7); }
   .header-right { display: flex; align-items: center; gap: 0.6rem; }
-  #round-badge { background: var(--accent); color: #000; font-weight: 700; font-size: 0.72rem; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px; }
+  #round-badge { background: var(--accent); color: #fff; font-weight: 700; font-size: 0.72rem; padding: 3px 10px; border-radius: 20px; letter-spacing: 1px;
+    box-shadow: 0 0 8px rgba(212,43,43,0.4); }
   #team-badge { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; cursor: pointer; }
 
   /* ── Nav ── */
@@ -47,7 +52,7 @@
     border-bottom: 2px solid transparent; transition: color .15s, border-color .15s;
     text-transform: uppercase; letter-spacing: 0.5px;
   }
-  nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+  nav button.active { color: var(--accent); border-bottom-color: var(--accent); text-shadow: 0 0 8px rgba(212,43,43,0.4); }
   nav button:hover:not(.active) { color: var(--text); }
 
   main { padding: 1.1rem; max-width: 860px; margin: 0 auto; }
@@ -55,14 +60,15 @@
   .section.active { display: block; }
 
   /* ── Cards ── */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.1rem; margin-bottom: 0.9rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem; margin-bottom: 0.9rem;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.35); }
   .card-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 0.7rem; }
 
   /* ── Buttons ── */
   .btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.5rem 1rem; border-radius: 6px; border: none; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: opacity .15s, transform .1s; letter-spacing: 0.3px; }
   .btn:active { transform: scale(0.97); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover:not(:disabled) { background: var(--accent2); }
   .btn-danger { background: var(--red); color: #fff; }
   .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
@@ -87,7 +93,7 @@
 
   /* ── Pairings ── */
   .pairing-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.65rem; overflow: hidden; }
-  .pairing-card.mine { border-color: var(--accent); }
+  .pairing-card.mine { border-color: var(--accent); box-shadow: 0 0 12px rgba(212,43,43,0.2); }
   .pairing-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0.7rem 0.9rem; gap: 0.5rem; }
   .pairing-team { font-weight: 600; font-size: 0.88rem; }
   .pairing-team.right { text-align: right; }
@@ -110,8 +116,10 @@
   .standings-table tr:last-child td { border-bottom: none; }
   .standings-table tr.highlight td { background: rgba(232,160,32,.06); }
   .rank-cell { color: var(--muted); font-size: 0.78rem; font-weight: 600; }
-  .rank-1 { color: #f5c842; } .rank-2 { color: #a0a8b8; } .rank-3 { color: #c07a40; }
-  .pts-cell { font-weight: 700; color: var(--accent); font-size: 0.92rem; }
+  .rank-1 { color: var(--gold); text-shadow: 0 0 6px rgba(240,192,64,0.5); }
+  .rank-2 { color: #b0b8c8; }
+  .rank-3 { color: #c07a40; }
+  .pts-cell { font-weight: 700; color: var(--accent); font-size: 0.92rem; text-shadow: 0 0 6px rgba(212,43,43,0.3); }
   .wl-w { color: var(--green); font-weight: 600; }
   .wl-d { color: var(--blue); font-weight: 600; }
   .wl-l { color: var(--red); font-weight: 600; }
@@ -137,12 +145,13 @@
     align-items: center; justify-content: center;
   }
   #pin-overlay.open { display: flex; }
-  .pin-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem 1.75rem; width: min(360px, 92vw); text-align: center; }
+  .pin-box { background: #141414; border: 1px solid #3a0a0a; border-radius: 14px; padding: 2rem 1.75rem; width: min(360px, 92vw); text-align: center;
+    box-shadow: 0 0 40px rgba(212,43,43,0.2); }
   .pin-box h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--accent); letter-spacing: 2px; margin-bottom: 0.25rem; }
   .pin-box p { color: var(--muted); font-size: 0.82rem; margin-bottom: 1.25rem; }
   .pin-display { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.25rem; }
   .pin-digit { width: 48px; height: 56px; background: var(--surface2); border: 2px solid var(--border); border-radius: 8px; font-size: 1.6rem; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: border-color .15s; }
-  .pin-digit.filled { border-color: var(--accent); color: var(--accent); }
+  .pin-digit.filled { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px rgba(212,43,43,0.4); }
   .pin-digit.error { border-color: var(--red); color: var(--red); }
   .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; max-width: 240px; margin: 0 auto 1rem; }
   .pin-key { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 1.1rem; font-weight: 600; padding: 0.8rem; cursor: pointer; transition: background .1s, transform .1s; font-family: 'Inter', sans-serif; }
@@ -174,11 +183,12 @@
 
   /* ── My-match hero banner ── */
   .my-match-banner {
-    background: linear-gradient(135deg, rgba(232,160,32,.16) 0%, rgba(232,160,32,.06) 100%);
+    background: linear-gradient(135deg, rgba(212,43,43,.18) 0%, rgba(212,43,43,.06) 100%);
     border: 2px solid var(--accent);
     border-radius: 12px;
     padding: 1.4rem 1.4rem 1.1rem;
     margin-bottom: 1.1rem;
+    box-shadow: 0 0 24px rgba(212,43,43,0.12);
   }
   .my-match-banner .banner-label {
     font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
@@ -200,10 +210,11 @@
   }
   .field-chip {
     display: inline-flex; align-items: center; gap: 0.5rem;
-    background: var(--accent); color: #000;
+    background: var(--accent); color: #fff;
     font-size: 1rem; font-weight: 700;
     padding: 0.5rem 1.1rem; border-radius: 8px;
     letter-spacing: 0.3px;
+    box-shadow: 0 0 10px rgba(212,43,43,0.35);
   }
   .field-chip-ghost {
     display: inline-flex; align-items: center; gap: 0.4rem;
@@ -219,7 +230,7 @@
 <!-- PIN Login -->
 <div id="pin-overlay">
   <div class="pin-box">
-    <h2>Knittelturnier</h2>
+    <h2>🔥 Stöbelturnier</h2>
     <p id="pin-overlay-msg">Bitte PIN deines Teams eingeben</p>
     <div class="pin-display">
       <div class="pin-digit" id="pd0">·</div>
@@ -256,7 +267,7 @@
 </div>
 
 <header>
-  <h1 id="main-title">⚡ Knittelturnier</h1>
+  <h1 id="main-title">🔥 Stöbelturnier</h1>
   <div class="header-right">
     <span id="round-badge">Runde –</span>
     <span id="team-badge" onclick="showPinOverlay()" title="Team wechseln">👤 Gast</span>
@@ -324,7 +335,7 @@
         <div class="card">
           <div class="card-title">Turnier Einstellungen</div>
           <div class="form-row"><label class="label">Admin Passwort</label><input type="text" id="cfg-password" placeholder="turnier2025"></div>
-          <div class="form-row"><label class="label">Titel</label><input type="text" id="cfg-title" placeholder="Knittelturnier 2025"></div>
+          <div class="form-row"><label class="label">Titel</label><input type="text" id="cfg-title" placeholder="Stöbelturnier 2025"></div>
           <div class="form-row"><label class="label">Anzahl Spielfelder</label><input type="number" id="cfg-fields" placeholder="6" min="1" max="30" style="max-width:100px"></div>
           <button class="btn btn-primary" onclick="saveSettings()">Speichern</button>
         </div>
@@ -418,7 +429,7 @@ let state = {
   teams: {},       // id -> { name, pin }
   rounds: {},      // roundNum -> [ match ]
   currentRound: 0,
-  settings: { password: 'admin', title: 'Knittelturnier 2025' }
+  settings: { password: 'admin', title: 'Stöbelturnier 2025' }
 };
 let session = {
   teamId: null,    // null = Gast
@@ -532,11 +543,11 @@ function checkPin() {
 // Firebase
 // ─────────────────────────────────────────────────────────────────────────────
 function loadConfig() {
-  const r = localStorage.getItem('knittel_fb_config');
+  const r = localStorage.getItem('stoebel_fb_config');
   return r ? JSON.parse(r) : null;
 }
-function saveConfig(cfg) { localStorage.setItem('knittel_fb_config', JSON.stringify(cfg)); }
-function loadAdminPw() { return localStorage.getItem('knittel_admin_pw') || 'admin'; }
+function saveConfig(cfg) { localStorage.setItem('stoebel_fb_config', JSON.stringify(cfg)); }
+function loadAdminPw() { return localStorage.getItem('stoebel_admin_pw') || 'admin'; }
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBukGl8KprWShSKyIuK6l4rfHM8kabKbwk",
@@ -772,7 +783,7 @@ function generateSwissPairing() {
 // ─────────────────────────────────────────────────────────────────────────────
 function renderAll() {
   document.getElementById('round-badge').textContent = `Runde ${state.currentRound||'–'}`;
-  document.getElementById('main-title').textContent = '⚡ ' + (state.settings?.title||'Knittelturnier');
+  document.getElementById('main-title').textContent = '🔥 ' + (state.settings?.title||'Stöbelturnier');
   renderPairings();
   renderStandings();
   renderTeamsList();
@@ -1044,7 +1055,7 @@ window.saveSettings = async function() {
   const pw=document.getElementById('cfg-password').value.trim();
   const title=document.getElementById('cfg-title').value.trim();
   const fields=parseInt(document.getElementById('cfg-fields').value)||6;
-  if (pw) { localStorage.setItem('knittel_admin_pw',pw); await fbSet('/tournament/settings/password',pw); }
+  if (pw) { localStorage.setItem('stoebel_admin_pw',pw); await fbSet('/tournament/settings/password',pw); }
   if (title) await fbSet('/tournament/settings/title',title);
   await fbSet('/tournament/settings/fieldCount', fields);
   toast('Gespeichert');
@@ -1088,7 +1099,7 @@ window.printPins = function() {
     .pin{font-size:18px;font-weight:bold;letter-spacing:4px;font-family:monospace}
     @media print{button{display:none}}
   </style></head><body>
-  <h1>Knittelturnier – Team PINs</h1>
+  <h1>Stöbelturnier – Team PINs</h1>
   <button onclick="window.print()" style="margin-bottom:16px;padding:6px 14px;cursor:pointer">🖨 Drucken</button>
   <table><tr><th>#</th><th>Team</th><th>PIN</th></tr>
   ${teams.map((t,i)=>`<tr><td>${i+1}</td><td>${t.name}</td><td class="pin">${t.pin||'–'}</td></tr>`).join('')}
