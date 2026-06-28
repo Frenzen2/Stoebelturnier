@@ -362,11 +362,11 @@
       <div class="card">
         <div class="card-title">🧪 Pairing-Simulation & Test</div>
         <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:.75rem">
-          <div><label class="label">Teams</label><input type="number" id="sim-teams" value="40" min="4" max="60" style="width:70px"></div>
-          <div><label class="label">Runden</label><input type="number" id="sim-rounds" value="6" min="2" max="10" style="width:70px"></div>
+          <div><label class="label">Teams</label><input type="number" id="sim-teams" value="41" min="4" max="80" style="width:70px"></div>
+          <div><label class="label">Runden</label><input type="number" id="sim-rounds" value="13" min="2" max="20" style="width:70px"></div>
           <button class="btn btn-primary" onclick="runSimulation()">▶ Simulation starten</button>
         </div>
-        <p style="font-size:.73rem;color:var(--muted);margin-bottom:.75rem">Läuft lokal im Browser – schreibt nichts in Firebase. Prüft Rematches, Freirunden und Buchholz.</p>
+        <p style="font-size:.73rem;color:var(--muted);margin-bottom:.75rem">Läuft lokal – schreibt nichts in Firebase. Prüft Rematches, Freirunden und Buchholz. Tipp: 41 Teams / 13 Runden = euer reales Szenario vom letzten Jahr.</p>
         <div id="sim-output" style="display:none">
           <div id="sim-log" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.75rem;font-size:.78rem;font-family:monospace;line-height:1.7;max-height:360px;overflow-y:auto;white-space:pre-wrap"></div>
         </div>
