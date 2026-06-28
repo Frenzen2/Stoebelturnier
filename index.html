@@ -295,7 +295,7 @@
     <div class="card" style="padding:0;overflow:hidden">
       <table class="standings-table">
         <thead><tr>
-          <th>#</th><th>Team</th>
+          <th style="width:28px"></th><th>Team</th>
           <th class="num">Pkt</th><th class="num">Diff</th>
           <th class="num">Sp</th><th class="num">S/U/N</th>
         </tr></thead>
@@ -915,18 +915,58 @@ function renderPairings() {
   el.innerHTML = html;
 }
 
+function calcZones(data) {
+  if (!data.length) return [];
+  const maxPts = data[0].pts;
+  const minPts = data[data.length-1].pts;
+  const totalPts = maxPts - minPts || 1;
+  // Dynamic: top zone = within 20% of point spread from leader
+  //          bottom zone = within 20% from last
+  const topThreshold    = maxPts - Math.max(2, Math.round(totalPts * 0.20));
+  const bottomThreshold = minPts + Math.max(2, Math.round(totalPts * 0.20));
+  return data.map(t => {
+    if (t.pts >= topThreshold)    return 'top';
+    if (t.pts <= bottomThreshold) return 'bottom';
+    return 'mid';
+  });
+}
+
 function renderStandings() {
   const body = document.getElementById('standings-body');
   const data = calcStandings();
   if (!data.length) { body.innerHTML='<tr><td colspan="6" class="empty-state">Noch keine Ergebnisse</td></tr>'; return; }
-  body.innerHTML = data.map((t,i)=>{
-    const rc = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
-    const mine = t.id===session.teamId;
-    return `<tr class="${mine?'highlight':''}">
-      <td class="rank-cell ${rc}">${i+1}</td>
+
+  const zones = calcZones(data);
+  let lastZone = null;
+
+  body.innerHTML = data.map((t,i) => {
+    const zone = zones[i];
+    const mine = t.id === session.teamId;
+
+    // Zone separator row
+    let separator = '';
+    if (zone !== lastZone) {
+      lastZone = zone;
+      const zoneInfo = {
+        top:    { icon:'🏆', label:'Kann gewinnen',    bg:'rgba(240,192,64,0.08)',  border:'rgba(240,192,64,0.3)',  color:'#f0c040' },
+        mid:    { icon:'🟢', label:'Mittelfeld',        bg:'rgba(39,174,96,0.06)',   border:'rgba(39,174,96,0.25)',  color:'#27ae60' },
+        bottom: { icon:'🍍', label:'Goldene Ananas',   bg:'rgba(212,43,43,0.08)',   border:'rgba(212,43,43,0.3)',   color:'#d42b2b' },
+      }[zone];
+      separator = `<tr>
+        <td colspan="6" style="padding:.5rem .6rem .3rem;background:${zoneInfo.bg};border-top:2px solid ${zoneInfo.border};border-bottom:1px solid ${zoneInfo.border}">
+          <span style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:${zoneInfo.color}">${zoneInfo.icon} ${zoneInfo.label}</span>
+        </td>
+      </tr>`;
+    }
+
+    const diff = t.diff >= 0 ? `+${t.diff}` : `${t.diff}`;
+    const zoneBg = zone==='top' ? 'rgba(240,192,64,0.04)' : zone==='bottom' ? 'rgba(212,43,43,0.04)' : '';
+
+    return separator + `<tr class="${mine?'highlight':''}" style="background:${zoneBg}">
+      <td style="width:28px;text-align:center;font-size:1rem">${zone==='top'?'🏆':zone==='bottom'?'🍍':'  '}</td>
       <td>${t.name}${mine?' 👈':''}</td>
       <td class="num pts-cell">${t.pts}</td>
-      <td class="num" style="color:${t.diff>=0?'var(--green)':'var(--red)'}">${t.diff>0?'+':''}${t.diff}</td>
+      <td class="num" style="color:${t.diff>=0?'var(--green)':'var(--red)'}">${diff}</td>
       <td class="num">${t.played||0}</td>
       <td class="num"><span class="wl-w">${t.wins}</span>/<span class="wl-d">${t.draws}</span>/<span class="wl-l">${t.losses}</span></td>
     </tr>`;
