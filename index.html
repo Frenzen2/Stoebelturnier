@@ -262,7 +262,7 @@
 <body>
 
 <!-- PIN Login -->
-<div id="pin-overlay">
+<div id="pin-overlay" class="open">
   <div class="pin-box">
     <h2>🔥 Stöbelturnier</h2>
     <p id="pin-overlay-msg">Bitte PIN deines Teams eingeben</p>
@@ -639,7 +639,7 @@ const FIREBASE_CONFIG = {
   appId: "1:899454609586:web:40465b0c61489f51cfc1ab"
 };
 
-async function connectFirebase(cfg) {
+async function connectFirebase() {
   const { initializeApp, getApps, getApp } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
   const { getDatabase, ref, onValue, set, update, remove, push }
     = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
@@ -1746,13 +1746,13 @@ window.showSection = function(id, btn) {
 // ─────────────────────────────────────────────────────────────────────────────
 (async()=>{
   setStatus('Verbinde...');
+  // Show PIN overlay immediately - Firebase loads in background
+  showPinOverlay();
   try {
     await connectFirebase();
-    await new Promise(res => setTimeout(res, 1200));
   } catch(e) {
     setStatus('Verbindung fehlgeschlagen: ' + e.message);
   }
-  showPinOverlay();
 })();
 </script>
 </body>
