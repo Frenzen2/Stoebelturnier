@@ -195,7 +195,13 @@
   .collapse-arrow { color: var(--muted); font-size: .9rem; transition: transform .2s; }
   .collapse-arrow.open { transform: rotate(180deg); }
   .collapsible-body { overflow: hidden; transition: max-height .3s ease, opacity .3s ease; max-height: 0; opacity: 0; }
-  .collapsible-body.open { max-height: 1000px; opacity: 1; }
+  .collapsible-body.open { max-height: 2000px; opacity: 1; }
+
+  /* Teams list scrollable */
+  #admin-teams-list { max-height: 400px; overflow-y: auto; overscroll-behavior: contain; }
+  #admin-teams-list::-webkit-scrollbar { width: 4px; }
+  #admin-teams-list::-webkit-scrollbar-track { background: var(--surface2); }
+  #admin-teams-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
   /* ── Round progress bar ── */
   .progress-bar-wrap { background: var(--border); border-radius: 4px; height: 6px; margin-top: .4rem; overflow: hidden; }
