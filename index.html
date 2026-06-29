@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
 <title>Stöbelturnier 2025</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
@@ -25,7 +25,8 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh;
+    overscroll-behavior: none; /* iOS bounce verhindern */ }
 
   /* ── Header ── */
   header {
@@ -143,6 +144,8 @@
     display: none; position: fixed; inset: 0;
     background: rgba(10,12,20,0.96); z-index: 300;
     align-items: center; justify-content: center;
+    height: 100dvh; /* iOS dynamic viewport */
+    overflow: hidden;
   }
   #pin-overlay.open { display: flex; }
   .pin-box { background: #141414; border: 1px solid #3a0a0a; border-radius: 14px; padding: 2rem 1.75rem; width: min(360px, 92vw); text-align: center;
@@ -162,7 +165,8 @@
   .pin-error-msg { color: var(--red); font-size: 0.78rem; min-height: 1.1rem; margin-bottom: 0.5rem; }
 
   /* ── Modals ── */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.72); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.72); z-index: 200; align-items: center; justify-content: center;
+    height: 100dvh; align-items: flex-start; padding-top: 20vh; }
   .modal-overlay.open { display: flex; }
   .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem; width: min(400px, 92vw); }
   .modal h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.9rem; }
@@ -476,11 +480,21 @@ window.showPinOverlay = function() {
     ? 'Bitte PIN deines Teams eingeben'
     : '⏳ Verbinde mit Datenbank...';
   document.getElementById('pin-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.width = '100%';
 };
+
+function closePinOverlay() {
+  closePinOverlay();
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.width = '';
+}
 
 window.skipPin = function() {
   session.teamId = null;
-  document.getElementById('pin-overlay').classList.remove('open');
+  closePinOverlay();
   document.getElementById('team-badge').textContent = '👤 Gast';
   renderAll();
 };
@@ -496,7 +510,7 @@ window.loginAsAdmin = function() {
   if (pw === loadAdminPw() || pw === (state.settings?.password || 'admin')) {
     session.teamId = null;
     session.isAdmin = true;
-    document.getElementById('pin-overlay').classList.remove('open');
+    closePinOverlay();
     document.getElementById('team-badge').textContent = '⚙ Admin';
     // Auto-unlock admin panel
     document.getElementById('admin-lock-card').style.display = 'none';
@@ -543,14 +557,14 @@ function checkPin() {
   if (match) {
     session.teamId = match[0];
     session.isAdmin = false;
-    document.getElementById('pin-overlay').classList.remove('open');
+    closePinOverlay();
     document.getElementById('team-badge').textContent = '🏆 ' + match[1].name;
     renderAll();
     toast('Willkommen, ' + match[1].name + '!');
   } else if (adminPin && pinBuffer === adminPin) {
     session.teamId = null;
     session.isAdmin = true;
-    document.getElementById('pin-overlay').classList.remove('open');
+    closePinOverlay();
     document.getElementById('team-badge').textContent = '⚙ Admin';
     renderAll();
     toast('Admin-Modus');
