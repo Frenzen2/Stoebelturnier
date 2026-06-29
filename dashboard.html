@@ -148,25 +148,25 @@
     gap: 14px;
   }
 
+  /* ── Pairing card: 3-row layout (field / team1+score / team2+score) ── */
   .pairing-item {
     background: var(--surface);
     border: 2px solid var(--border);
     border-radius: 10px;
-    padding: 14px 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 6px;
+    padding: 8px 14px;
+    display: grid;
+    grid-template-rows: auto 1fr 1fr;
+    gap: 0;
     transition: border-color 0.3s;
     height: 100%;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
 
   .pairing-item.has-result {
     border-color: #bbb;
-    background: #f8f8f8;
-    opacity: 0.7;
+    background: #f5f5f5;
+    opacity: 0.6;
   }
 
   .pairing-item.open {
@@ -174,53 +174,65 @@
     border-width: 3px;
   }
 
+  /* Row 1: Field */
   .pairing-field {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.8rem;
-    font-weight: 400;
+    font-size: 2rem;
     color: var(--accent);
-    text-transform: uppercase;
     letter-spacing: 3px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
     line-height: 1;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 4px;
   }
 
-  .pairing-teams {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+  /* Rows 2 & 3: Team name + score on same line */
+  .pairing-team-row {
+    display: flex;
     align-items: center;
-    gap: 8px;
-    flex: 1;
+    justify-content: space-between;
+    gap: 12px;
+    overflow: hidden;
+    padding: 3px 0;
+    border-bottom: 1px solid #eee;
   }
+
+  .pairing-team-row:last-child { border-bottom: none; }
 
   .pairing-team-name {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 3rem;
+    font-size: 3.4rem;
     line-height: 1.0;
     letter-spacing: 0.5px;
     word-break: break-word;
     hyphens: auto;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    flex: 1;
+    align-self: center;
   }
-
-  .pairing-team-name.right { text-align: right; }
 
   .pairing-score {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 4.5rem;
+    font-size: 3.8rem;
     color: var(--accent);
-    letter-spacing: 4px;
-    text-align: center;
+    letter-spacing: 2px;
     white-space: nowrap;
     line-height: 1;
     font-weight: 900;
+    flex-shrink: 0;
+    min-width: 90px;
+    text-align: right;
+    align-self: center;
   }
 
   .pairing-score.open-score {
     font-size: 2rem;
-    color: #bbb;
-    letter-spacing: 3px;
+    color: #ccc;
+    letter-spacing: 2px;
+    font-weight: 400;
   }
 
   .score-win { color: #1a7a3c; font-weight:900; }
@@ -368,18 +380,13 @@
     background: #f0f0f0;
     border: 2px dashed var(--border);
     border-radius: 10px;
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
+    padding: 8px 14px;
+    display: grid;
+    grid-template-rows: auto 1fr 1fr;
+    gap: 0;
     color: var(--muted);
     height: 100%;
-  }
-
-  .bye-item .bye-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 3rem;
-    color: var(--text);
+    overflow: hidden;
   }
 
   /* ── Transition for content views ── */
@@ -556,39 +563,47 @@ function renderPairings() {
       : `· Alle ${total} eingetragen ✓`;
 
   const pairingCard = (m, isOpen) => {
+    const fieldStr = m.field ? `📍 Feld ${m.field}` : '📍';
+
     if (m.bye) return `
       <div class="bye-item">
-        <span style="font-size:2rem">🔄</span>
-        <span class="bye-name">${tn(m.team1)}</span>
-        <span style="font-size:1.3rem;color:var(--muted)">Freirunde</span>
+        <div class="pairing-field">📍 Freirunde</div>
+        <div class="pairing-team-row">
+          <div class="pairing-team-name">${tn(m.team1)}</div>
+          <div class="pairing-score open-score">–</div>
+        </div>
+        <div class="pairing-team-row">
+          <div class="pairing-team-name" style="color:#bbb">–</div>
+          <div class="pairing-score open-score">–</div>
+        </div>
       </div>`;
-
-    const fieldStr = m.field ? `<span>📍 Feld ${m.field}</span>` : '';
 
     if (!isOpen) {
       const s1c = m.score1>m.score2?'score-win':m.score1<m.score2?'score-loss':'';
       const s2c = m.score2>m.score1?'score-win':m.score2<m.score1?'score-loss':'';
       return `
-        <div class="pairing-item has-result" style="opacity:0.65">
-          <div class="pairing-field" style="color:var(--muted)">${fieldStr}</div>
-          <div class="pairing-teams">
-            <div class="pairing-team-name" style="color:var(--muted)">${tn(m.team1)}</div>
-            <div class="pairing-score">
-              <span class="${s1c}">${m.score1}</span>
-              <span style="color:var(--border)">:</span>
-              <span class="${s2c}">${m.score2}</span>
-            </div>
-            <div class="pairing-team-name right" style="color:var(--muted)">${tn(m.team2)}</div>
+        <div class="pairing-item has-result">
+          <div class="pairing-field">${fieldStr}</div>
+          <div class="pairing-team-row">
+            <div class="pairing-team-name">${tn(m.team1)}</div>
+            <div class="pairing-score ${s1c}">${m.score1}</div>
+          </div>
+          <div class="pairing-team-row">
+            <div class="pairing-team-name">${tn(m.team2)}</div>
+            <div class="pairing-score ${s2c}">${m.score2}</div>
           </div>
         </div>`;
     } else {
       return `
         <div class="pairing-item open">
           <div class="pairing-field">${fieldStr}</div>
-          <div class="pairing-teams">
+          <div class="pairing-team-row">
             <div class="pairing-team-name">${tn(m.team1)}</div>
-            <div class="pairing-score open-score">VS</div>
-            <div class="pairing-team-name right">${tn(m.team2)}</div>
+            <div class="pairing-score open-score">–</div>
+          </div>
+          <div class="pairing-team-row">
+            <div class="pairing-team-name">${tn(m.team2)}</div>
+            <div class="pairing-score open-score">–</div>
           </div>
         </div>`;
     }
@@ -702,7 +717,7 @@ function initSponsors() {
       halfWidth += w;
     }
     if (halfWidth < 100) halfWidth = halfCount * 600; // fallback
-    const dur = Math.max(20, SPONSORS.length * 8); // 8s per sponsor
+    const dur = Math.max(30, SPONSORS.length * 15); // 15s per sponsor
     const st = document.createElement('style');
     st.textContent = `@keyframes sponsor-scroll{0%{transform:translateX(0)}100%{transform:translateX(-${halfWidth}px)}}`;
     document.head.appendChild(st);
