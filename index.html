@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
 <title>Stöbelturnier 2025</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
@@ -79,7 +79,8 @@
   /* ── Inputs ── */
   input[type="text"], input[type="number"], input[type="password"], textarea {
     background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-    border-radius: 6px; padding: 0.5rem 0.75rem; font-family: 'Inter', sans-serif; font-size: 0.85rem; width: 100%;
+    border-radius: 6px; padding: 0.5rem 0.75rem; font-family: 'Inter', sans-serif;
+    font-size: 16px; /* min 16px verhindert iOS Auto-Zoom */ width: 100%;
   }
   input:focus, textarea:focus { outline: none; border-color: var(--accent); }
 
@@ -264,7 +265,7 @@
     </div>
     <div id="admin-login-row" style="display:none;margin-top:.75rem;display:none">
       <div class="inline-row" style="justify-content:center">
-        <input type="password" id="overlay-admin-pw" placeholder="Admin-Passwort" style="max-width:180px">
+        <input type="password" id="overlay-admin-pw" placeholder="Admin-Passwort" style="max-width:180px;font-size:16px">
         <button class="btn btn-primary btn-sm" onclick="loginAsAdmin()">OK</button>
       </div>
     </div>
