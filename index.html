@@ -678,12 +678,11 @@ function calcStandings() {
   const ids = Object.keys(state.teams);
   if (!ids.length) return [];
   const s = {};
-  ids.forEach(id => s[id] = { pts:0, wins:0, draws:0, losses:0, diff:0, played:0, opponents:[] });
+  ids.forEach(id => s[id] = { pts:0, wins:0, draws:0, losses:0, diff:0, played:0, buchholz:0, opponents:[] });
 
   Object.values(state.rounds).forEach(round => {
     if (!Array.isArray(round)) return;
     round.forEach(m => {
-      // Bye: zählt als Spiel, aber 0 Punkte (wie im Original-Script)
       if (m.bye) { if (s[m.team1]) { s[m.team1].played+=1; } return; }
       if (m.score1===undefined || !s[m.team1] || !s[m.team2]) return;
       s[m.team1].opponents.push(m.team2); s[m.team2].opponents.push(m.team1);
@@ -694,9 +693,13 @@ function calcStandings() {
       else { s[m.team1].pts+=1; s[m.team2].pts+=1; s[m.team1].draws+=1; s[m.team2].draws+=1; }
     });
   });
-  // Tiebreaker: Punkte -> Differenz -> Siege -> Name (wie Original)
+  // Buchholz = Summe der Punkte aller Gegner
+  ids.forEach(id => {
+    s[id].buchholz = s[id].opponents.reduce((sum, opp) => sum + (s[opp]?.pts || 0), 0);
+  });
+  // Tiebreaker: Punkte → Differenz → Buchholz → Siege → Name
   return ids.map(id=>({id, name:state.teams[id].name, ...s[id]}))
-            .sort((a,b)=>b.pts-a.pts||b.diff-a.diff||b.wins-a.wins||a.name.localeCompare(b.name));
+            .sort((a,b)=>b.pts-a.pts||b.diff-a.diff||b.buchholz-a.buchholz||b.wins-a.wins||a.name.localeCompare(b.name));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1548,7 +1551,8 @@ window.runSimulation = function() {
         else { s[m.team1].pts+=1; s[m.team2].pts+=1; s[m.team1].draws+=1; s[m.team2].draws+=1; }
       });
     });
-    return ids.map(id=>({id,...s[id]})).sort((a,b)=>b.pts-a.pts||b.diff-a.diff||b.wins-a.wins);
+    ids.forEach(id => { s[id].buchholz = s[id].opponents.reduce((sum,o)=>sum+(s[o]?.pts||0),0); });
+    return ids.map(id=>({id,...s[id]})).sort((a,b)=>b.pts-a.pts||b.diff-a.diff||b.buchholz-a.buchholz||b.wins-a.wins);
   }
 
   function simPairing() {
@@ -1706,7 +1710,7 @@ window.runSimulation = function() {
   // Top 5
   out(`\nFinal-Tabelle (Top 5):`);
   final.slice(0,5).forEach((t,i)=>{
-    out(`  ${i+1}. ${simTeams[t.id].name.padEnd(12)} ${String(t.pts).padStart(3)} Pkt  Diff: ${t.diff>=0?'+':''}${t.diff}  Siege: ${t.wins}  Sp: ${t.played}`);
+    out(`  ${i+1}. ${simTeams[t.id].name.padEnd(12)} ${String(t.pts).padStart(3)} Pkt  Diff: ${t.diff>=0?'+':''}${t.diff}  BH: ${t.buchholz}  Siege: ${t.wins}`);
   });
 
   out(`\nRematches gesamt: ${totalRematches}`);
